@@ -13,42 +13,52 @@
 
     require.path.unshift('lib');
 
-    var con = require('console');
-
     var Directory = require('FileSystem').Directory,
         File = require('FileSystem').File,
         stdio = require('stdio').stdio;
 
     var current = new Directory('.');
-    stdio.stdout = 'CURRENT DIRECTORY';
-    current.each(function(f) {
-        stdio.stdout = f.name;
+    stdio.stdout = 'Directory Proxy Properties';
+    current.each(function(value, key) {
+        stdio.stdout = ' + ' + key;
     });
     stdio.stdout = '----------------------';
-    var readme = current['README.md'];
-    stdio.stdout = 'CONTENTS OF README';
-    try {
-        readme.each(function(value, key) {
-            stdio.stdout = (key + ' = ' + value);
-        });
-    }
-    catch (e) {
-        stdio.dump = e;
-        stdio.stdout = e.stack;
-    }
+    stdio.stdout = 'LISTING OF CURRENT DIRECTORY';
+    current.content.each(function(filename) {
+        stdio.stdout = current[filename].name + ' ' + current[filename].size;
+    });
+    stdio.stdout = '----------------------';
+    stdio.stdout = 'DUMP CURRENT DIRECTORY';
+    current.each(function(value, key) {
+        stdio.stdout = 'key = ' + key;
+        stdio.stdout = value;
+    });
+    stdio.stdout = '----------------------';
+    stdio.stdout = 'ATTRIBUTES OF EXISTING FILE test.txt';
+    var test_txt = current['test.txt'];
+    test_txt.each(function(value, key) {
+        stdio.stdout = (key + ' = ' + value);
+    });
 
-    stdio.stdout = 'CREATE TEST';
+    stdio.stdout = '----------------------';
+    stdio.stdout = 'CREATE NEW FILE test';
+    stdio.stdout = 'test exists? (should be false): ' + ('test' in current);
     var test = new File('test', true);
-    test.content = 'TEST';
-    stdio.stdout = typeof test;
+    stdio.stdout = 'test exists? (should be true): ' + ('test' in current);
 
-    stdio.stdout = test.toString();
+    test.content = 'TEST';
+
     stdio.stdout = test;
     stdio.stdout = test.content;
 
+    stdio.stdout = '----------------------';
     stdio.stdout = 'TEST FILE COPY';
-    test.content = readme;
+    test.content = test_txt;
     stdio.stdout = test.content;
 
+    stdio.stdout = '----------------------';
+    stdio.stdout = 'DELETE FILE test';
+    stdio.stdout = 'test exists? (should be true): ' + ('test' in current);
     delete current.test;
+    stdio.stdout = 'test exists? (should be false): ' + ('test' in current);
 }());
